@@ -469,7 +469,6 @@ void mce_sys_var::get_env_params()
 	rx_num_wr_to_post_recv  = MCE_DEFAULT_RX_NUM_WRE_TO_POST_RECV;
 	rx_poll_num             = MCE_DEFAULT_RX_NUM_POLLS;
 	rx_poll_num_init        = MCE_DEFAULT_RX_NUM_POLLS_INIT;
-	rx_udp_poll_os_ratio    = MCE_DEFAULT_RX_UDP_POLL_OS_RATIO;
 	hw_ts_conversion_mode   = MCE_DEFAULT_HW_TS_CONVERSION_MODE;
 	rx_sw_csum         	= MCE_DEFUALT_RX_SW_CSUM;
 	rx_poll_yield_loops     = MCE_DEFAULT_RX_POLL_YIELD;
@@ -561,7 +560,6 @@ void mce_sys_var::get_env_params()
 		rx_num_wr               = 256; //MCE_DEFAULT_RX_NUM_WRE (16000)
 		rx_num_wr_to_post_recv  = 4; //MCE_DEFAULT_RX_NUM_WRE_TO_POST_RECV (64)
 		rx_poll_num             = -1; //MCE_DEFAULT_RX_NUM_POLLS
-		rx_udp_poll_os_ratio    = 0; //MCE_DEFAULT_RX_UDP_POLL_OS_RATIO
 		rx_prefetch_bytes	= MCE_DEFAULT_RX_PREFETCH_BYTES; //(256)
 		rx_prefetch_bytes_before_poll = 256; //MCE_DEFAULT_RX_PREFETCH_BYTES_BEFORE_POLL 0
 		select_poll_num         = -1;
@@ -604,7 +602,6 @@ void mce_sys_var::get_env_params()
 		mce_spec_param1         = 5000;	// [u-sec] Time out to send next pipe_write
 		mce_spec_param2         = 50;	// Num of max sequential pipe_write to drop
 		rx_poll_num             = 0;
-		rx_udp_poll_os_ratio    = 100;
 		select_poll_num         = 100000;
 		select_poll_os_ratio    = 100;
 		select_skip_os_fd_check = 50;
@@ -614,7 +611,6 @@ void mce_sys_var::get_env_params()
 		mce_spec_param1         = 5000;	// [u-sec] Time out to send next pipe_write
 		mce_spec_param2         = 50;	// Num of max sequential pipe_write to drop
 		rx_poll_num             = 0;
-		rx_udp_poll_os_ratio    = 100;
 		select_poll_num         = 0;
 		select_skip_os_fd_check = 20;
 		break;
@@ -820,9 +816,6 @@ void mce_sys_var::get_env_params()
 	if (rx_poll_num == 0)
 		rx_poll_num = 1; // Force at least one good polling loop
 
-	if ((env_ptr = getenv(SYS_VAR_RX_UDP_POLL_OS_RATIO)) != NULL)
-		rx_udp_poll_os_ratio = (uint32_t)atoi(env_ptr);
-
 	if ((env_ptr = getenv(SYS_VAR_HW_TS_CONVERSION_MODE)) != NULL) {
 		hw_ts_conversion_mode = (ts_conversion_mode_t)atoi(env_ptr);
 		if ((uint32_t)hw_ts_conversion_mode >= TS_CONVERSION_MODE_LAST) {
@@ -833,16 +826,6 @@ void mce_sys_var::get_env_params()
 
 	if ((env_ptr = getenv(SYS_VAR_RX_SW_CSUM)) != NULL) {
 		rx_sw_csum = atoi(env_ptr) ? true : false;
-	}
-
-	//The following 2 params were replaced by SYS_VAR_RX_UDP_POLL_OS_RATIO
-	if ((env_ptr = getenv(SYS_VAR_RX_POLL_OS_RATIO)) != NULL) {
-		rx_udp_poll_os_ratio = (uint32_t)atoi(env_ptr);
-		vlog_printf(VLOG_WARNING,"The parameter VMA_RX_POLL_OS_RATIO is no longer in use. Parameter VMA_RX_UDP_POLL_OS_RATIO was set to %d instead\n", rx_udp_poll_os_ratio);
-	}
-	if ((env_ptr = getenv(SYS_VAR_RX_SKIP_OS)) != NULL) {
-		rx_udp_poll_os_ratio = (uint32_t)atoi(env_ptr);
-		vlog_printf(VLOG_WARNING,"The parameter VMA_RX_SKIP_OS is no longer in use. Parameter VMA_RX_UDP_POLL_OS_RATIO was set to %d instead\n", rx_udp_poll_os_ratio);
 	}
 
 	if ((env_ptr = getenv(SYS_VAR_RX_POLL_YIELD)) != NULL)
